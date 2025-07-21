@@ -18,14 +18,14 @@ def run_playwright(slow_mo: float = None) -> tuple[Playwright, Browser, Page]:
     return play, browser, page
 
 
-# 시가총액 페이지로 이동 (Async)
+# 시가총액 페이지로 이동
 def goto_market_cap(page: Page):
     page.goto('https://finance.naver.com')
     page.get_by_role("link", name="국내증시").click()
     page.get_by_role("link", name="시가총액", exact=True).first.click()
 
 
-# 시가총액 수집 (Async)
+# 시가총액 수집
 def parse_table_kospi(page: Page) -> tuple[list, list]:
     tag_table = page.locator("table", has_text="코스피")    # 코스피 시가총액 표
     tag_thead = tag_table.locator("thead > tr > th")    # # 표의 헤더 부분
