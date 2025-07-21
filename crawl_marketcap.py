@@ -1,7 +1,9 @@
 from playwright.sync_api import Browser, Page, Playwright, sync_playwright
 import json
 from pathlib import Path
+import pandas as pd
 from load_dir import OUT_DIR
+from preprocess import table_to_dataframe
 
 def run_playwright(slow_mo: float = None) -> tuple[Playwright, Browser, Page]:
     play: Playwright = sync_playwright().start()    # playwright 객체 생성
@@ -39,7 +41,29 @@ def parse_table_kospi(page: Page) -> tuple[list, list]:
 
     return header, body
 
-OUT_1 = OUT_DIR / f"{Path(__file__).stem}.json"
+def fetch_total_page(page:Page) -> int:
+    table = page.locator("table", has_text="페이지 네비게이션")    # <table> 태그 추출
+    td = table.locator("tbody > tr > td").last    # 마지막 <td> 태그 추출
+    href = td.locator("a").get_attribute("href")    # <a> 태그 href 속성 추출
+    return int(href.split("=")[-1])    # URL에서 페이지 추출
+ 
+
+def fetch_market_cap(page: Page) -> pd.DataFrame:
+    total_page = fetch_total_page(page)
+    result = []
+
+    for to in range(1, total_page+1):
+        goto_market_cap(page)
+        header, body = parse_table_kospi(page)
+
+        df = table_to_dataframe(header, body)
+        result.append(df)
+
+    return pd.concat(result)
+
+
+# OUT_1 = OUT_DIR / f"{Path(__file__).stem}.json"
+OUT_2 = OUT_DIR / "result.json"
 
 if __name__ == '__main__':
     play, browser, page = run_playwright(slow_mo=1000)
@@ -47,11 +71,16 @@ if __name__ == '__main__':
     goto_market_cap(page)    # 시가총액 페이지로 이동
     header, body = parse_table_kospi(page)    # 코스피 시가총액 데이터 수집
 
-    dumped = json.dumps(dict(header=header, body=body), 
-                        ensure_ascii=False, indent=2)
+    # dumped = json.dumps(dict(header=header, body=body), 
+    #                     ensure_ascii=False, indent=2)
     
-    OUT_1.write_text(dumped, encoding="utf-8")
+    # OUT_1.write_text(dumped, encoding="utf-8")
+
+    total_page = fetch_total_page(page)
+    print(f"{total_page=}")
     
+    df_result = fetch_market_cap(page)    # 코스피 시가총액 표 추출
+    df_result.to_csv(OUT_2, index=False)
 
     browser.close()
     play.stop()
