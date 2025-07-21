@@ -48,12 +48,15 @@ def fetch_total_page(page:Page) -> int:
     return int(href.split("=")[-1])    # URL에서 페이지 추출
  
 
+def goto_page(page:Page, to:int):
+    page.goto(f"https://finance.naver.com/sise/sise_market_sum.naver?&page={to}")
+
 def fetch_market_cap(page: Page) -> pd.DataFrame:
     total_page = fetch_total_page(page)
     result = []
 
     for to in range(1, total_page+1):
-        goto_market_cap(page)
+        goto_page(page, to)
         header, body = parse_table_kospi(page)
 
         df = table_to_dataframe(header, body)
@@ -63,7 +66,8 @@ def fetch_market_cap(page: Page) -> pd.DataFrame:
 
 
 # OUT_1 = OUT_DIR / f"{Path(__file__).stem}.json"
-OUT_2 = OUT_DIR / "result.json"
+# OUT_2 = OUT_DIR / f"{Path(__file__).stem}.csv"
+OUT_3 = OUT_DIR / "result.csv"
 
 if __name__ == '__main__':
     play, browser, page = run_playwright(slow_mo=1000)
@@ -71,16 +75,22 @@ if __name__ == '__main__':
     goto_market_cap(page)    # 시가총액 페이지로 이동
     header, body = parse_table_kospi(page)    # 코스피 시가총액 데이터 수집
 
-    # dumped = json.dumps(dict(header=header, body=body), 
-    #                     ensure_ascii=False, indent=2)
+    dumped = json.dumps(dict(header=header, body=body), 
+                        ensure_ascii=False, indent=2)
     
-    # OUT_1.write_text(dumped, encoding="utf-8")
+    # OUT_1.write_text(dumped, encoding="utf-8")    # json으로 저장
+
+    # parsed = json.loads(OUT_1.read_text(encoding="utf-8"))    # json 파일 불러오기
+    # header, body = parsed["header"], parsed["body"]
+
+    # df = table_to_dataframe(header, body)
+    # df.to_csv(OUT_2, index=False)
 
     total_page = fetch_total_page(page)
     print(f"{total_page=}")
     
     df_result = fetch_market_cap(page)    # 코스피 시가총액 표 추출
-    df_result.to_csv(OUT_2, index=False)
+    df_result.to_csv(OUT_3, index=False)
 
     browser.close()
     play.stop()
