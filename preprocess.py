@@ -40,7 +40,7 @@ def clean_etf_csv(csv_path: str) -> pd.DataFrame:
     return df
 
 
-OUT_preprocess = OUT_DIR / "result_erf.csv"
+OUT_preprocess = OUT_DIR / "result_etf.csv"
 
 if __name__ == "__main__":
 
