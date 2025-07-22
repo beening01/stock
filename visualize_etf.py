@@ -15,21 +15,21 @@ df = pd.read_csv(OUT_DIR / "result_etf.csv")
 - NAV: ETF 1주가 실제로 보유하고 있는 가치
 '''
 
-# # ✅ 1. ETF별 수익률 비교 (성과 분석)
-# fig = px.bar(
-#     df.sort_values("3개월수익률", ascending=False).head(20),
-#     x="3개월수익률",
-#     y="종목명",
-#     orientation="h",
-#     color="3개월수익률",
-#     color_continuous_scale="RdBu",
-#     title="ETF 3개월 수익률 TOP 20"
-# )
-# fig.update_layout(yaxis={'categoryorder':'total ascending'})
-# fig.show()
+# ✅ 1. ETF별 수익률 비교 (성과 분석)
+fig = px.bar(
+    df.sort_values("3개월수익률", ascending=False).head(20),
+    x="3개월수익률",
+    y="종목명",
+    orientation="h",
+    color="3개월수익률",
+    color_continuous_scale="RdBu",
+    title="ETF 3개월 수익률 TOP 20"
+)
+fig.update_layout(yaxis={'categoryorder':'total ascending'})
+fig.show()
 
-# img_path = OUT_DIR / "ETF_returns_20.png"
-# fig.write_image(img_path, width=1600, height=900, scale=2)    # 이미지 파일로 저장
+img_path = OUT_DIR / "ETF_returns_20.png"
+fig.write_image(img_path, width=1600, height=900, scale=2)    # 이미지 파일로 저장
 
 
 #############################################################################
@@ -81,24 +81,24 @@ df = pd.read_csv(OUT_DIR / "result_etf.csv")
 
 
 #############################################################################
-# 🧊 4. 등락률 히트맵 (Heatmap)
-# 히트맵용 데이터셋 구성 (복수 지표)
-# 예시: 히트맵에 사용할 열만 남기고 결측값 제거
-heatmap_data = df[['종목명', '등락률', '3개월수익률', '거래량']].copy()
+# # 🧊 4. 등락률 히트맵 (Heatmap)
+# # 히트맵용 데이터셋 구성 (복수 지표)
+# # 예시: 히트맵에 사용할 열만 남기고 결측값 제거
+# heatmap_data = df[['종목명', '등락률', '3개월수익률', '거래량']].copy()
 
-# 결측값 제거
-heatmap_data.dropna(inplace=True)
+# # 결측값 제거
+# heatmap_data.dropna(inplace=True)
 
-# 종목명을 인덱스로
-heatmap_data.set_index('종목명', inplace=True)
+# # 종목명을 인덱스로
+# heatmap_data.set_index('종목명', inplace=True)
 
 
-# 히트맵 시각화
-fig = px.imshow(
-    heatmap_data.T,  # 종목명이 X축으로 가게 Transpose
-    color_continuous_scale='RdBu',
-    aspect='auto',
-    title="ETF 주요 지표 히트맵 (결측값 제거)"
-)
-fig.show()
+# # 히트맵 시각화
+# fig = px.imshow(
+#     heatmap_data.T,  # 종목명이 X축으로 가게 Transpose
+#     color_continuous_scale='RdBu',
+#     aspect='auto',
+#     title="ETF 주요 지표 히트맵 (결측값 제거)"
+# )
+# fig.show()
 
