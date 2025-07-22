@@ -23,15 +23,44 @@ def parse_table_etf(page: Page) -> tuple[list, list]:
     header = tag_th.all_inner_texts()
     
 
-    tag_tbody = tag_table.locator("tbody > tr")     # 보디 부분
+    tag_tbody = tag_table.locator("tbody > tr").all()    # 보디 부분
     body = []
-    rows = tag_tbody.all()[1:]
-    for tr in rows:
-        tds = tr.locator("td")
+    rows = tag_tbody[1:]    # 두 번째 tr부터 시작
+
+    for row in rows:     
+        tds = row.locator("td")
         td_texts = tds.all_inner_texts()
+        # 링크 존재 여부 확인
+        link_locator = tds.locator("a")
+        if link_locator.count() == 0:
+            continue
+        else:
+            # 새 탭이 아닌 현재 탭에서 이동
+            with page.expect_navigation():
+                link_locator.first.click()
+                page.wait_for_load_state("load")
+
+            # 상세 페이지에서 h2 추출
+            tag_h2 = page.locator("h2")
+            full_names = tag_h2.locator("a").inner_text()
+            print(full_names)
+            td_texts[0] = full_names
+
+            page.go_back()
+            
+            
         if all(text.strip() == "" for text in td_texts):    # 수집된 데이터가 빈문자열이면
             continue    # 무시하기
+        print(td_texts)
         body.append(td_texts)
+
+    # for tr in rows:
+    #     tds = tr.locator("td")
+    #     a_tag = tds.locator("a")
+    #     td_texts = tds.all_inner_texts()
+    #     if all(text.strip() == "" for text in td_texts):    # 수집된 데이터가 빈문자열이면
+    #         continue    # 무시하기
+    #     body.append(td_texts)
 
     return header, body
 

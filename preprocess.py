@@ -5,6 +5,19 @@ import json
 from pathlib import Path
 from load_dir import OUT_DIR
 
+def clean_white_space(text: str) -> str:
+    return " ".join(text.split())    # 공백 문자 정제
+
+def table_to_dataframe(header: list, body: list) -> pd.DataFrame:
+    df = pd.DataFrame(body, columns=header)
+    df = df.dropna(how='any')    # 하나의 열이라도 데이터 없으면 행 삭제
+    df = df.iloc[:, :-1]    # 마지막 열 삭제
+
+    for col in df.columns:
+        df[col] = df[col].apply(clean_white_space)     # 열별 공백문제 정제
+
+    return df
+
 
 def clean_etf_csv(csv_path: str) -> pd.DataFrame:
     """
