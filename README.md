@@ -46,9 +46,8 @@ stock/
 │ ├── result_tree.png    # 시가총액 상위 50% tree map
 │ ├── ETF_returns_20.png    # ETF 3개월 수익률 상위 TOP 20
 │ ├── viualize_marketcap.csv    # 시가총액 tree map에 사용
-│ ├──
-│ ├── 
-│ └── 
+│ ├── crawl_ETF.csv    # ETF 크롤링 데이터
+│ └── crawl_maketcap.csv    # 코스피 크롤링 데이터
 └── README.md
 ```
 
